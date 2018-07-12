@@ -25,6 +25,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -212,6 +213,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Code\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -250,7 +252,8 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
-    <Compile Include="Filter\AuthorizationTokenProvider.cs" />
+    <Compile Include="Filter\AccessTokenProvider.cs" />
+    <Compile Include="Filter\AuthorizationCodeProvider.cs" />
     <Compile Include="Filter\RefreshTokenProvider.cs" />
     <Compile Include="Filter\AuthorizationServerProvider.cs" />
     <Compile Include="Models\Client.cs" />

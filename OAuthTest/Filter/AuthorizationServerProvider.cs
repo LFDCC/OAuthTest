@@ -7,6 +7,8 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using OAuthTest.Models;
+using Microsoft.Owin.Security.Infrastructure;
+using System.Web;
 
 namespace OAuthTest.Filter
 {
@@ -27,21 +29,28 @@ namespace OAuthTest.Filter
         /// <returns></returns>  
         public override Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
         {
-            string clientId;
-            string clientSecret;
-            //Basic 、from 两种请求方式，Basic从header[Authorization](解密)取 ，from 从Parameters[clientId] Parameters[clientSecret] 取 
-            if (context.TryGetBasicCredentials(out clientId, out clientSecret) || context.TryGetFormCredentials(out clientId, out clientSecret))
+            if (context.Parameters["grant_type"] == "client_credentials" || context.Parameters["grant_type"] == "authorization_code")
             {
-                if (!string.IsNullOrEmpty(clientSecret))
+                string clientId;
+                string clientSecret;
+                //Basic 、from 两种请求方式，Basic从header[Authorization](解密)取 ，from 从Parameters[clientId] Parameters[clientSecret] 取 
+                if (context.TryGetBasicCredentials(out clientId, out clientSecret) || context.TryGetFormCredentials(out clientId, out clientSecret))
                 {
-                    //如果包含clientSecret，如果是客户端授权模式，后面会用到
-                    context.OwinContext.Set("clientSecret", clientSecret);
-                }
-                //模拟请求数据库验证
-                var client = Repository.clients.SingleOrDefault(t => t.clientId == clientId);
-                if (clientId != null)
-                {
-                    context.Validated(clientId);
+                    if (!string.IsNullOrEmpty(clientSecret))
+                    {
+                        //如果包含clientSecret，如果是客户端授权模式，后面会用到
+                        context.OwinContext.Set("clientSecret", clientSecret);
+                    }
+                    //模拟请求数据库验证
+                    var client = Repository.clients.SingleOrDefault(t => t.clientId == clientId);
+                    if (client != null)
+                    {
+                        context.Validated(clientId);
+                    }
+                    else
+                    {
+                        context.SetError("invalid_client", "客户端验证失败");
+                    }
                 }
                 else
                 {
@@ -50,9 +59,9 @@ namespace OAuthTest.Filter
             }
             else
             {
-                context.SetError("invalid_client", "客户端验证失败");
+                context.Validated();
             }
-            return Task.FromResult<object>(null);
+            return Task.FromResult(0);
         }
         /// <summary>
         /// 把Context中的属性加入到token中
@@ -66,7 +75,7 @@ namespace OAuthTest.Filter
                 context.AdditionalResponseParameters.Add(property.Key, property.Value);
             }
 
-            return base.TokenEndpoint(context);
+            return Task.FromResult(0);
         }
 
         #endregion 公共方法
@@ -102,7 +111,7 @@ namespace OAuthTest.Filter
                 context.SetError("invalid_client_credentials", "客户端授权失败，clientSecret不正确");
             }
 
-            return base.GrantClientCredentials(context);
+            return Task.FromResult(0);
         }
 
         #endregion 客户端授权模式
@@ -143,11 +152,112 @@ namespace OAuthTest.Filter
 
                 context.Validated(ticket);
             }
-            return base.GrantResourceOwnerCredentials(context);
+            return Task.FromResult(0);
 
         }
 
         #endregion 密码授权模式
+
+        #region 授权码模式
+
+        /**
+        * 
+        *   第一次请求授权服务（获取 authorization_code），请求地址/authorize
+        *   需要的参数：
+        *   grant_type：必选，授权模式，值为 "authorization_code"。
+        *   response_type：必选，授权类型，值固定为 "code"。
+        *   client_id：必选，客户端 ID。
+        *   redirect_uri：必选，重定向 URI，URL 中会包含 authorization_code。
+        *   scope：可选，申请的权限范围，比如微博授权服务值为 follow_app_official_microblog。
+        *   state：可选，客户端的当前状态，可以指定任意值，授权服务器会原封不动地返回这个值，比如微博授权服务值为 weibo。
+        
+        *   第二次请求授权服务（获取 access_token），需要的参数：        
+        *   grant_type：必选，授权模式，值为 "authorization_code"。
+        *   code：必选，授权码，值为上面请求返回的 authorization_code。
+        *   redirect_uri：必选，重定向 URI，必须和上面请求的 redirect_uri 值一样。
+        *   client_id：必选，客户端 ID。
+        *   
+        *   第三次请求授权服务（获取 access_token），返回的参数：
+        *   access_token：访问令牌.
+        *   token_type：令牌类型，值一般为 "bearer"。
+        *   expires_in：过期时间，单位为秒。
+        *   refresh_token：更新令牌，用来获取下一次的访问令牌。
+        *   scope：权限范围。
+        * 
+        **/
+
+        /// <summary>
+        /// 生成 authorization_code（authorization code 授权方式）、生成 access_token 
+        /// </summary>
+        public override async Task AuthorizeEndpoint(OAuthAuthorizeEndpointContext context)
+        {
+            var redirectUri = context.Request.Query["redirect_uri"];
+            var clientId = context.Request.Query["client_id"];
+            var identity = new ClaimsIdentity(new GenericIdentity(
+                clientId, OAuthDefaults.AuthenticationType));
+
+            var authorizeCodeContext = new AuthenticationTokenCreateContext(
+                context.OwinContext,
+                context.Options.AuthorizationCodeFormat,
+                new AuthenticationTicket(
+                    identity,
+                    new AuthenticationProperties(new Dictionary<string, string>
+                    {
+                        {"client_id", clientId},
+                        {"redirect_uri", redirectUri}
+                    })
+                    {
+                        IssuedUtc = DateTimeOffset.UtcNow,
+                        ExpiresUtc = DateTimeOffset.UtcNow.Add(context.Options.AuthorizationCodeExpireTimeSpan)
+                    }));
+            await context.Options.AuthorizationCodeProvider.CreateAsync(authorizeCodeContext);
+            context.Response.Redirect(redirectUri + "?code=" + Uri.EscapeDataString(authorizeCodeContext.Token));
+            context.RequestCompleted();
+        }
+        /// <summary>
+        /// 验证 authorization_code 的请求
+        /// </summary>
+        public override Task ValidateAuthorizeRequest(OAuthValidateAuthorizeRequestContext context)
+        {
+            string clientId = context.AuthorizeRequest.ClientId;
+            var client = Repository.clients.SingleOrDefault(t => t.clientId == clientId);
+            if (client != null &&
+                (context.AuthorizeRequest.IsAuthorizationCodeGrantType || context.AuthorizeRequest.IsImplicitGrantType))
+            {
+                context.Validated();
+            }
+            else
+            {
+                context.Rejected();
+            }
+            return Task.FromResult(0);
+        }
+
+        /// <summary>
+        /// 验证 redirect_uri
+        /// </summary>
+        public override Task ValidateClientRedirectUri(OAuthValidateClientRedirectUriContext context)
+        {
+            context.Validated(context.RedirectUri);
+            return Task.FromResult(0);
+        }
+
+        /// <summary>
+        /// 验证 access_token 的请求
+        /// </summary>
+        public override Task ValidateTokenRequest(OAuthValidateTokenRequestContext context)
+        {
+            if (context.TokenRequest.IsAuthorizationCodeGrantType || context.TokenRequest.IsRefreshTokenGrantType)
+            {
+                context.Validated();
+            }
+            else
+            {
+                context.Rejected();
+            }
+            return Task.FromResult(0);
+        }
+        #endregion
 
         #region 刷新token
         /// <summary>
@@ -169,7 +279,7 @@ namespace OAuthTest.Filter
             var newTicket = new AuthenticationTicket(newIdentity, context.Ticket.Properties);
             context.Validated(newTicket);
 
-            return Task.FromResult<object>(null);
+            return Task.FromResult(0);
         }
         #endregion 刷新token
     }

@@ -29,8 +29,9 @@ namespace OAuthTest
                 AccessTokenExpireTimeSpan = TimeSpan.FromMinutes(60),//access_token 过期时间
 
                 Provider = new AuthorizationServerProvider(),//授权服务
-                AccessTokenProvider = new AuthorizationTokenProvider(),//自定义创建accesstoken 验证accesstoken规则
+                //AccessTokenProvider = new AccessTokenProvider(),//自定义创建accesstoken 验证accesstoken规则
                 RefreshTokenProvider = new RefreshTokenProvider(),//自定义创建refreshtoken 验证refreshtoken规则
+                AuthorizationCodeProvider = new AuthorizationCodeProvider(), //authorization_code 授权服务
             };
             app.UseOAuthBearerTokens(OAuthServerOptions);//表示 token_type 使用 bearer 方式
             app.UseCors(CorsOptions.AllowAll);//允许跨域

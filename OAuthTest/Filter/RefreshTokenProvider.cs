@@ -34,6 +34,7 @@ namespace OAuthTest.Filter
 
         /// <summary>
         /// 由 refresh_token 解析成 access_token
+        /// 使用完成就移除掉refresh_token
         /// </summary>
         public override Task ReceiveAsync(AuthenticationTokenReceiveContext context)
         {
