@@ -15,6 +15,9 @@ namespace OAuthTest.Models
         /// 客户端秘钥，客户端授权模式必须要有
         /// </summary>
         public string clientSecret { get; set; }
-        
+
+        public string RedirectUri { get; set; }
+
+
     }
 }

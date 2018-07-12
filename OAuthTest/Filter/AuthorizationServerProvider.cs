@@ -167,7 +167,7 @@ namespace OAuthTest.Filter
         *   grant_type：必选，授权模式，值为 "authorization_code"。
         *   response_type：必选，授权类型，值固定为 "code"。
         *   client_id：必选，客户端 ID。
-        *   redirect_uri：必选，重定向 URI，URL 中会包含 authorization_code。
+        *   redirect_uri：必选，重定向 URI，URL 中会包含 authorization_code。 （关联到client 配置到数据库中）
         *   scope：可选，申请的权限范围，比如微博授权服务值为 follow_app_official_microblog。
         *   state：可选，客户端的当前状态，可以指定任意值，授权服务器会原封不动地返回这个值，比如微博授权服务值为 weibo。
         
@@ -214,46 +214,32 @@ namespace OAuthTest.Filter
             context.Response.Redirect(redirectUri + "?code=" + Uri.EscapeDataString(authorizeCodeContext.Token));
             context.RequestCompleted();
         }
-        /// <summary>
-        /// 验证 authorization_code 的请求
-        /// </summary>
-        public override Task ValidateAuthorizeRequest(OAuthValidateAuthorizeRequestContext context)
-        {
-            string clientId = context.AuthorizeRequest.ClientId;
-            var client = Repository.clients.SingleOrDefault(t => t.clientId == clientId);
-            if (client != null &&
-                (context.AuthorizeRequest.IsAuthorizationCodeGrantType || context.AuthorizeRequest.IsImplicitGrantType))
-            {
-                context.Validated();
-            }
-            else
-            {
-                context.Rejected();
-            }
-            return Task.FromResult(0);
-        }
 
         /// <summary>
         /// 验证 redirect_uri
         /// </summary>
         public override Task ValidateClientRedirectUri(OAuthValidateClientRedirectUriContext context)
         {
-            context.Validated(context.RedirectUri);
-            return Task.FromResult(0);
-        }
-
-        /// <summary>
-        /// 验证 access_token 的请求
-        /// </summary>
-        public override Task ValidateTokenRequest(OAuthValidateTokenRequestContext context)
-        {
-            if (context.TokenRequest.IsAuthorizationCodeGrantType || context.TokenRequest.IsRefreshTokenGrantType)
+            var client = Repository.clients.SingleOrDefault(t => t.clientId == context.ClientId);
+            if (client != null)
             {
-                context.Validated();
+                if (string.IsNullOrEmpty(context.RedirectUri))
+                {
+                    if (!string.IsNullOrEmpty(client.RedirectUri))
+                    {
+                        context.Validated(client.RedirectUri);
+                    }
+                    else
+                    {
+                        context.SetError("未配置redirect_uri");
+                    }
+                }
+                else {
+                    context.Validated(context.RedirectUri);
+                }
             }
-            else
-            {
-                context.Rejected();
+            else {
+                context.SetError("客户端验证失败");
             }
             return Task.FromResult(0);
         }

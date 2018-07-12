@@ -19,12 +19,12 @@ namespace OAuthTest.Models
             get
             {
                 return new List<Client> {
-                     new Client { clientId="client0", clientSecret="client0" },
-                     new Client { clientId="client1", clientSecret="client1" },
-                     new Client { clientId="client2", clientSecret="client2" },
-                     new Client { clientId="client3", clientSecret="client3" },
-                     new Client { clientId="client4", clientSecret="client4" },
-                     new Client { clientId="client5", clientSecret="client5" },
+                     new Client { clientId="client0", clientSecret="client0",RedirectUri="http://www.baidu.com" },
+                     new Client { clientId="client1", clientSecret="client1" ,RedirectUri="http://www.baidu.com"},
+                     new Client { clientId="client2", clientSecret="client2" ,RedirectUri="http://www.baidu.com"},
+                     new Client { clientId="client3", clientSecret="client3",RedirectUri="http://www.baidu.com" },
+                     new Client { clientId="client4", clientSecret="client4",RedirectUri="http://www.baidu.com" },
+                     new Client { clientId="client5", clientSecret="client5",RedirectUri="http://www.baidu.com" },
                 };
             }
         }
