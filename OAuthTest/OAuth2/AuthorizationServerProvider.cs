@@ -10,7 +10,7 @@ using OAuthTest.Models;
 using Microsoft.Owin.Security.Infrastructure;
 using System.Web;
 
-namespace OAuthTest.Filter
+namespace OAuthTest.OAuth2
 {
     /// <summary>
     /// 授权业务类
@@ -177,7 +177,7 @@ namespace OAuthTest.Filter
         *   redirect_uri：必选，重定向 URI，必须和上面请求的 redirect_uri 值一样。
         *   client_id：必选，客户端 ID。
         *   
-        *   第三次请求授权服务（获取 access_token），返回的参数：
+        *   第二次请求授权服务（获取 access_token），返回的参数：
         *   access_token：访问令牌.
         *   token_type：令牌类型，值一般为 "bearer"。
         *   expires_in：过期时间，单位为秒。
@@ -187,33 +187,37 @@ namespace OAuthTest.Filter
         **/
 
         /// <summary>
-        /// 生成 authorization_code（authorization code 授权方式）、生成 access_token 
+        /// 生成code后 重定向 url?code=XXXXXXXXXXXXXXXXXXX
+        /// 如果是登录授权 请把这个重载注释掉，因为在登录-授权页面已经可以重定向了，不需要再此处做操作
+        /// 如果不需要登录授权 可以直接使用此重载-重定向
+        /// 如果需要登录授权 则需要创建 对应login-controller-action授权流程
+        /// 两者冲突
         /// </summary>
-        public override async Task AuthorizeEndpoint(OAuthAuthorizeEndpointContext context)
-        {
-            var redirectUri = context.Request.Query["redirect_uri"];
-            var clientId = context.Request.Query["client_id"];
-            var identity = new ClaimsIdentity(new GenericIdentity(
-                clientId, OAuthDefaults.AuthenticationType));
+        //public override async Task AuthorizeEndpoint(OAuthAuthorizeEndpointContext context)
+        //{
+        //    var redirectUri = context.Request.Query["redirect_uri"];
+        //    var clientId = context.Request.Query["client_id"];
+        //    var identity = new ClaimsIdentity(new GenericIdentity(
+        //        clientId, OAuthDefaults.AuthenticationType));
 
-            var authorizeCodeContext = new AuthenticationTokenCreateContext(
-                context.OwinContext,
-                context.Options.AuthorizationCodeFormat,
-                new AuthenticationTicket(
-                    identity,
-                    new AuthenticationProperties(new Dictionary<string, string>
-                    {
-                        {"client_id", clientId},
-                        {"redirect_uri", redirectUri}
-                    })
-                    {
-                        IssuedUtc = DateTimeOffset.UtcNow,
-                        ExpiresUtc = DateTimeOffset.UtcNow.Add(context.Options.AuthorizationCodeExpireTimeSpan)
-                    }));
-            await context.Options.AuthorizationCodeProvider.CreateAsync(authorizeCodeContext);
-            context.Response.Redirect(redirectUri + "?code=" + Uri.EscapeDataString(authorizeCodeContext.Token));
-            context.RequestCompleted();
-        }
+        //    var authorizeCodeContext = new AuthenticationTokenCreateContext(
+        //        context.OwinContext,
+        //        context.Options.AuthorizationCodeFormat,
+        //        new AuthenticationTicket(
+        //            identity,
+        //            new AuthenticationProperties(new Dictionary<string, string>
+        //            {
+        //                {"client_id", clientId},
+        //                {"redirect_uri", redirectUri}
+        //            })
+        //            {
+        //                IssuedUtc = DateTimeOffset.UtcNow,
+        //                ExpiresUtc = DateTimeOffset.UtcNow.Add(context.Options.AuthorizationCodeExpireTimeSpan)
+        //            }));
+        //    await context.Options.AuthorizationCodeProvider.CreateAsync(authorizeCodeContext);//生成code
+        //    context.Response.Redirect(redirectUri + "?code=" + Uri.EscapeDataString(authorizeCodeContext.Token));
+        //    context.RequestCompleted();
+        //}
 
         /// <summary>
         /// 验证 redirect_uri
@@ -234,11 +238,17 @@ namespace OAuthTest.Filter
                         context.SetError("未配置redirect_uri");
                     }
                 }
-                else {
+                else if (context.RedirectUri != client.RedirectUri)
+                {
+                    context.SetError("redirect_uri不一致");
+                }
+                else
+                {
                     context.Validated(context.RedirectUri);
                 }
             }
-            else {
+            else
+            {
                 context.SetError("客户端验证失败");
             }
             return Task.FromResult(0);

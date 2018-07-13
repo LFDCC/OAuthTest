@@ -19,9 +19,5 @@ namespace OAuthTest.Models
         /// 密码
         /// </summary>
         public string password { get; set; }
-        /// <summary>
-        /// token
-        /// </summary>
-        public string token { get; set; }
     }
 }

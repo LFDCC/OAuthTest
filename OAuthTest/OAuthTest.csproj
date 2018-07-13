@@ -213,13 +213,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Code\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="App_Start\SwaggerConfig.cs" />
+    <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
     <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
@@ -249,13 +248,21 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\OAuth2Controller.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
+    <Compile Include="Controllers\TestApiController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
-    <Compile Include="Filter\AccessTokenProvider.cs" />
-    <Compile Include="Filter\AuthorizationCodeProvider.cs" />
-    <Compile Include="Filter\RefreshTokenProvider.cs" />
-    <Compile Include="Filter\AuthorizationServerProvider.cs" />
+    <Compile Include="Filter\MvcAuthAttribute.cs" />
+    <Compile Include="Models\CurUser.cs" />
+    <Compile Include="OAuth2\AccessTokenProvider.cs" />
+    <Compile Include="OAuth2\AuthorizationCodeProvider.cs" />
+    <Compile Include="OAuth2\RefreshTokenProvider.cs" />
+    <Compile Include="OAuth2\AuthorizationServerProvider.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\Repository.cs" />
@@ -269,6 +276,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Global.asax" />
     <Content Include="Scripts\ai.0.22.9-build00167.js" />
     <Content Include="Scripts\ai.0.22.9-build00167.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -295,7 +303,6 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Metadata\deploymentTemplates\apiappconfig.azureresource.json" />
     <Content Include="apiapp.json" />
     <None Include="Properties\PublishProfiles\oauth.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
@@ -319,6 +326,8 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\OAuth2\Authorize.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
