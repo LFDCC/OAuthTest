@@ -1,14 +1,10 @@
 ﻿using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OAuth;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using OAuthTest.Models;
-using Microsoft.Owin.Security.Infrastructure;
-using System.Web;
 
 namespace OAuthTest.OAuth2
 {
@@ -17,6 +13,12 @@ namespace OAuthTest.OAuth2
     /// </summary>
     public class AuthorizationServerProvider : OAuthAuthorizationServerProvider
     {
+        //DBcontext _dbcontext;
+        //可以注入进来
+        public AuthorizationServerProvider(/*DBcontext dbcontex*/)
+        {
+            //_dbcontext = dbcontex;
+        }
         #region 公共方法 
         /// <summary>  
         /// 该方法表示 谁能发起授权
@@ -84,7 +86,7 @@ namespace OAuthTest.OAuth2
         #region 客户端授权模式
         /// <summary>
         /// 客户端授权模式 grant_type=client_credentials
-        /// 生成 access_token（client_credentials 授权方式）        
+        /// 生成 access_token（client_credentials 授权方式)client_id=client0&client_secret=secret0 
         /// </summary>
         public override Task GrantClientCredentials(OAuthGrantClientCredentialsContext context)
         {
@@ -94,13 +96,14 @@ namespace OAuthTest.OAuth2
             var client = Repository.clients.SingleOrDefault(t => t.clientId == context.ClientId && t.clientSecret == clientSecret);
             if (client != null)
             {
-                var identity = new ClaimsIdentity(new GenericIdentity(
-                                context.ClientId, OAuthDefaults.AuthenticationType),
-                                context.Scope.Select(x => new Claim("urn:oauth:scope", x)));
+                var identity = new ClaimsIdentity(new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, context.ClientId)
+                }, OAuthDefaults.AuthenticationType);
 
                 var props = new AuthenticationProperties(new Dictionary<string, string> {
-                    { "code", "0" },
-                    { "clientid", context.ClientId },
+                    { "自定义参数0", "0" },
+                    { "自定义参数1", context.ClientId }
                 });//自定义输出参数
 
                 var ticket = new AuthenticationTicket(identity, props);
@@ -138,14 +141,15 @@ namespace OAuthTest.OAuth2
             }
             else
             {
-                var identity = new ClaimsIdentity(context.Options.AuthenticationType);
-                identity.AddClaim(new Claim(ClaimTypes.Name, context.UserName));
-                identity.AddClaim(new Claim(ClaimTypes.UserData, user.id.ToString()));
+                var identity = new ClaimsIdentity(new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, context.UserName),
+                    new Claim(ClaimTypes.UserData, user.id.ToString()),
+                }, OAuthDefaults.AuthenticationType);
 
                 var props = new AuthenticationProperties(new Dictionary<string, string> {
-                    { "code", "0" },
-                    { "username", context.UserName },
-                    { "pwd", context.Password }
+                    { "自定义参数0", "0" },
+                    { "自定义参数1", context.UserName }
                 });//自定义输出参数
 
                 var ticket = new AuthenticationTicket(identity, props);
@@ -159,6 +163,7 @@ namespace OAuthTest.OAuth2
         #endregion 密码授权模式
 
         #region 授权码模式
+
 
         /**
         * 
@@ -187,37 +192,13 @@ namespace OAuthTest.OAuth2
         **/
 
         /// <summary>
-        /// 生成code后 重定向 url?code=XXXXXXXXXXXXXXXXXXX
-        /// 如果是登录授权 请把这个重载注释掉，因为在登录-授权页面已经可以重定向了，不需要再此处做操作
-        /// 如果不需要登录授权 可以直接使用此重载-重定向
-        /// 如果需要登录授权 则需要创建 对应login-controller-action授权流程
-        /// 两者冲突
+        /// 生成code
+        /// 此处只处理登录授权
         /// </summary>
-        //public override async Task AuthorizeEndpoint(OAuthAuthorizeEndpointContext context)
-        //{
-        //    var redirectUri = context.Request.Query["redirect_uri"];
-        //    var clientId = context.Request.Query["client_id"];
-        //    var identity = new ClaimsIdentity(new GenericIdentity(
-        //        clientId, OAuthDefaults.AuthenticationType));
-
-        //    var authorizeCodeContext = new AuthenticationTokenCreateContext(
-        //        context.OwinContext,
-        //        context.Options.AuthorizationCodeFormat,
-        //        new AuthenticationTicket(
-        //            identity,
-        //            new AuthenticationProperties(new Dictionary<string, string>
-        //            {
-        //                {"client_id", clientId},
-        //                {"redirect_uri", redirectUri}
-        //            })
-        //            {
-        //                IssuedUtc = DateTimeOffset.UtcNow,
-        //                ExpiresUtc = DateTimeOffset.UtcNow.Add(context.Options.AuthorizationCodeExpireTimeSpan)
-        //            }));
-        //    await context.Options.AuthorizationCodeProvider.CreateAsync(authorizeCodeContext);//生成code
-        //    context.Response.Redirect(redirectUri + "?code=" + Uri.EscapeDataString(authorizeCodeContext.Token));
-        //    context.RequestCompleted();
-        //}
+        public override async Task AuthorizeEndpoint(OAuthAuthorizeEndpointContext context)
+        {
+            await base.AuthorizeEndpoint(context);
+        }
 
         /// <summary>
         /// 验证 redirect_uri
@@ -227,18 +208,7 @@ namespace OAuthTest.OAuth2
             var client = Repository.clients.SingleOrDefault(t => t.clientId == context.ClientId);
             if (client != null)
             {
-                if (string.IsNullOrEmpty(context.RedirectUri))
-                {
-                    if (!string.IsNullOrEmpty(client.RedirectUri))
-                    {
-                        context.Validated(client.RedirectUri);
-                    }
-                    else
-                    {
-                        context.SetError("未配置redirect_uri");
-                    }
-                }
-                else if (context.RedirectUri != client.RedirectUri)
+                if (context.RedirectUri != client.RedirectUri)
                 {
                     context.SetError("redirect_uri不一致");
                 }

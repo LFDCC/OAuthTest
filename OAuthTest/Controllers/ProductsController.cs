@@ -16,7 +16,7 @@ namespace OAuthTest.Controllers
             new Product { Id = 3, Name = "Hammer", Category = "Hardware", Price = 16.99M }
       };
 
-        //[AllowAnonymous]
+        [AllowAnonymous]
         [ActionName("all")]
         public IEnumerable<Product> GetAllProducts()
         {

@@ -1,6 +1,8 @@
-﻿using Microsoft.Owin;
+﻿using Microsoft.AspNet.Identity;
+using Microsoft.Owin;
 using Microsoft.Owin.Cors;
 using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OAuth;
 using OAuthTest.OAuth2;
 using Owin;
@@ -12,7 +14,15 @@ namespace OAuthTest
     public partial class Startup
     {
         public void ConfigureAuth(IAppBuilder app)
-        {
+        {       
+            /*启用cookie 可以配合id身份验证使用
+            app.UseCookieAuthentication(new CookieAuthenticationOptions()
+            {
+                CookieName = "OAuthTest.Cookie",
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                LoginPath = new PathString("/Account/Login")
+            });
+            */
             OAuthAuthorizationServerOptions OAuthServerOptions = new OAuthAuthorizationServerOptions()
             {
                 AllowInsecureHttp = true,//允许客户端以http协议请求；

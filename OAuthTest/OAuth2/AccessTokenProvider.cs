@@ -17,14 +17,14 @@ namespace OAuthTest.OAuth2
     /// </summary>
     public class AccessTokenProvider : AuthenticationTokenProvider
     {
-        //public override void Create(AuthenticationTokenCreateContext context)
-        //{
-        //    base.Create(context);
-        //}
+        public override void Create(AuthenticationTokenCreateContext context)
+        {
+            base.Create(context);
+        }
 
-        //public override void Receive(AuthenticationTokenReceiveContext context)
-        //{
-        //    base.Receive(context);
-        //}
+        public override void Receive(AuthenticationTokenReceiveContext context)
+        {
+            base.Receive(context);
+        }
     }
 }

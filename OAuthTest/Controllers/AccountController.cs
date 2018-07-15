@@ -1,8 +1,10 @@
-﻿using OAuthTest.Filter;
+﻿using Microsoft.AspNet.Identity;
+using OAuthTest.Filter;
 using OAuthTest.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
 
@@ -31,6 +33,18 @@ namespace OAuthTest.Controllers
             if (model != null)
             {
                 Session["UserInfo"] = model;
+                
+                /*
+                ///id验证
+                var identity = new ClaimsIdentity(new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, model.id.ToString()),
+                    new Claim(ClaimTypes.Name, model.username),
+                }, DefaultAuthenticationTypes.ApplicationCookie);
+                var authentication = HttpContext.GetOwinContext().Authentication;
+                authentication.SignIn(identity);
+                */
+
                 return RedirectToLocal(returnUrl);
             }
             else
