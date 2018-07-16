@@ -7,7 +7,7 @@ namespace OAuthTest.Filter
     /// <summary>
     /// 身份验证
     /// </summary>
-    public class MvcAuthAttribute : ActionFilterAttribute
+    public class MvcAuthAttribute : ActionFilterAttribute //AuthorizeAttribute 要使用identity身份验证配合使用
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
@@ -21,6 +21,7 @@ namespace OAuthTest.Filter
                     filterContext.Result = new RedirectResult(url);
                 }
             }
+            base.OnActionExecuting(filterContext);
         }
     }
 }

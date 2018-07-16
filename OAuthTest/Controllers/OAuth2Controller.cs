@@ -21,7 +21,7 @@ namespace OAuthTest.Controllers
                 var identity = User.Identity as ClaimsIdentity;
                 identity = new ClaimsIdentity(identity.Claims, OAuthDefaults.AuthenticationType, identity.NameClaimType, identity.RoleClaimType);
                 */
-                
+
                 var identity = new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, CurUser.UserInfo.username),

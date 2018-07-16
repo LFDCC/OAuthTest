@@ -10,6 +10,8 @@ namespace OAuthTest
     {
         public static void Register(HttpConfiguration config)
         {
+            //webapi 筛选器
+           // config.Filters.Add(new ApiAuthAttribute());
             // Web API 配置和服务
 
             // Web API 路由
@@ -20,8 +22,6 @@ namespace OAuthTest
                 routeTemplate: "api/{controller}/{action}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-            //webapi 筛选器
-            config.Filters.Add(new ApiAuthAttribute());
         }
     }
 }
