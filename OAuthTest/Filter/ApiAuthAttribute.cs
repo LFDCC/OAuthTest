@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -17,12 +18,9 @@ namespace OAuthTest.Filter
     {
         public override void OnAuthorization(HttpActionContext filterContext)
         {
-
             bool flag = filterContext.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any() || filterContext.ActionDescriptor.ControllerDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any();
             if (!flag && filterContext.RequestContext.Principal.Identity.IsAuthenticated)
             {
-                var r = Roles;
-                var u = Users;
                 //filterContext.RequestContext.Principal.IsInRole("auth_login")
                 var identity = filterContext.RequestContext.Principal.Identity as ClaimsIdentity;
 
@@ -33,8 +31,6 @@ namespace OAuthTest.Filter
                 }
                 else
                 {
-
-                    //填充response 阻止controller或者action继续执行
                     var response = filterContext.Response = filterContext.Response ?? new HttpResponseMessage();
                     response.StatusCode = HttpStatusCode.Unauthorized;
                     var content = new
@@ -64,7 +60,6 @@ namespace OAuthTest.Filter
             };
             response.Content = new StringContent(Json.Encode(content), Encoding.UTF8, "application/json");
 
-            base.HandleUnauthorizedRequest(filterContext);
         }
 
     }

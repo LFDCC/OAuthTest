@@ -254,6 +254,7 @@
     <Compile Include="Controllers\TicketController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Filter\ApiAuthAttribute.cs" />
+    <Compile Include="Filter\ApiExceAttribute.cs" />
     <Compile Include="Filter\MvcAuthAttribute.cs" />
     <Compile Include="Models\CurUser.cs" />
     <Compile Include="OAuth2\AccessTokenProvider.cs" />

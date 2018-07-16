@@ -12,7 +12,7 @@ namespace OAuthTest.Controllers
     {
         [Route("api/ticket/user")]
         [HttpGet]
-        [ApiAuth(Roles = "auth_login",Users ="张三")]
+        [ApiAuth(Roles = "auth_login")]
         public User UserInfo()
         {
             var result = Repository.users.Where(u => u.username == User.Identity.Name).FirstOrDefault();

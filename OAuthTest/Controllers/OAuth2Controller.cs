@@ -11,7 +11,6 @@ namespace OAuthTest.Controllers
 
     public class OAuth2Controller : Controller
     {
-        [MvcAuth]
         public ActionResult Authorize()
         {
             var scopes = (Request.QueryString.Get("scope") ?? "").Split(',');

@@ -11,7 +11,8 @@ namespace OAuthTest
         public static void Register(HttpConfiguration config)
         {
             //webapi 筛选器
-           // config.Filters.Add(new ApiAuthAttribute());
+            // config.Filters.Add(new ApiAuthAttribute()); /全局注册
+            config.Filters.Add(new ApiExceAttribute());
             // Web API 配置和服务
 
             // Web API 路由
