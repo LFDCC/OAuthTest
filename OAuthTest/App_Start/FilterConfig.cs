@@ -4,6 +4,9 @@ using System.Web.Mvc;
 
 namespace OAuthTest
 {
+    /// <summary>
+    /// MVC 筛选器
+    /// </summary>
     public class FilterConfig
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)

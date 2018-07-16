@@ -1,4 +1,5 @@
-﻿using OAuthTest.Models;
+﻿using OAuthTest.Filter;
+using OAuthTest.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -6,16 +7,13 @@ using System.Web.Http;
 
 namespace OAuthTest.Controllers
 {
-    [Authorize]
+    [ApiAuth]
     public class TicketController : ApiController
     {
         [Route("api/ticket/user")]
         [HttpGet]
         public User UserInfo()
         {
-            var identity = User.Identity as ClaimsIdentity;
-            IEnumerable<Claim> scopes = identity.Claims;
-
             var result = Repository.users.Where(u => u.username == User.Identity.Name).FirstOrDefault();
             return result;
         }

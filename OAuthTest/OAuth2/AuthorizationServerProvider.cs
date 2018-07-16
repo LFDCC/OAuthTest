@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using OAuthTest.Models;
+using System.Security.Principal;
 
 namespace OAuthTest.OAuth2
 {
@@ -96,10 +97,10 @@ namespace OAuthTest.OAuth2
             var client = Repository.clients.SingleOrDefault(t => t.clientId == context.ClientId && t.clientSecret == clientSecret);
             if (client != null)
             {
-                var identity = new ClaimsIdentity(new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, context.ClientId)
-                }, OAuthDefaults.AuthenticationType);
+                var identity = new ClaimsIdentity(new GenericIdentity(
+                   context.ClientId, OAuthDefaults.AuthenticationType),
+                   context.Scope.Select(x => new Claim("urn:oauth:scope", x))
+                   );
 
                 var props = new AuthenticationProperties(new Dictionary<string, string> {
                     { "自定义参数0", "0" },
@@ -141,11 +142,10 @@ namespace OAuthTest.OAuth2
             }
             else
             {
-                var identity = new ClaimsIdentity(new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, context.UserName),
-                    new Claim(ClaimTypes.UserData, user.id.ToString()),
-                }, OAuthDefaults.AuthenticationType);
+                var identity = new ClaimsIdentity(new GenericIdentity(
+                   context.UserName, OAuthDefaults.AuthenticationType),
+                   context.Scope.Select(x => new Claim("urn:oauth:scope", x))
+                   );
 
                 var props = new AuthenticationProperties(new Dictionary<string, string> {
                     { "自定义参数0", "0" },

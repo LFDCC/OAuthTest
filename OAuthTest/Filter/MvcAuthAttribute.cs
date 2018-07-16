@@ -3,9 +3,10 @@ using System.Web;
 using System.Web.Mvc;
 
 namespace OAuthTest.Filter
-{/// <summary>
- /// 身份验证
- /// </summary>
+{
+    /// <summary>
+    /// 身份验证
+    /// </summary>
     public class MvcAuthAttribute : ActionFilterAttribute
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -17,7 +18,7 @@ namespace OAuthTest.Filter
                 if (CurUser.UserInfo == null)
                 {
                     string url = string.Format("{0}?ReturnUrl={1}", "~/Account/Login", HttpUtility.UrlEncode(filterContext.HttpContext.Request.RawUrl));
-                    filterContext.Result = new RedirectResult(url);                    
+                    filterContext.Result = new RedirectResult(url);
                 }
             }
         }

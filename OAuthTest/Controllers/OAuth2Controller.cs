@@ -29,7 +29,7 @@ namespace OAuthTest.Controllers
 
                 foreach (var scope in scopes)
                 {
-                    identity.AddClaim(new Claim("test132", scope));
+                    identity.AddClaim(new Claim("urn:oauth:scope", scope));
                 }
 
                 var authentication = HttpContext.GetOwinContext().Authentication;
