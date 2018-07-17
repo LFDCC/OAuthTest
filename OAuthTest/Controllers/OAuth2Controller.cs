@@ -8,7 +8,7 @@ using System.Web.Mvc;
 
 namespace OAuthTest.Controllers
 {
-
+    [Authorize]
     public class OAuth2Controller : Controller
     {
         public ActionResult Authorize()
@@ -16,16 +16,9 @@ namespace OAuthTest.Controllers
             var scopes = (Request.QueryString.Get("scope") ?? "").Split(',');
             if (Request.HttpMethod == "POST")
             {
-                /* id身份验证
                 var identity = User.Identity as ClaimsIdentity;
                 identity = new ClaimsIdentity(identity.Claims, OAuthDefaults.AuthenticationType, identity.NameClaimType, identity.RoleClaimType);
-                */
-
-                var identity = new ClaimsIdentity(new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, CurUser.UserInfo.username),
-                }, OAuthDefaults.AuthenticationType);
-
+                
                 foreach (var scope in scopes)
                 {
                     identity.AddClaim(new Claim("urn:oauth:scope", scope));

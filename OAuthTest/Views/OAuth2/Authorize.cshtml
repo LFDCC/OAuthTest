@@ -1,5 +1,4 @@
-﻿@using OAuthTest.Models
-@{
+﻿@{
     ViewBag.Title = "Authorize";
 }
 <h2>OAuth授权</h2>
@@ -7,7 +6,7 @@
     <div class="col-md-8">
         <section id="AuthorizeForm">
             <form method="post">
-                <p>你好 @CurUser.UserInfo.username</p>
+                <p>你好 @User.Identity.Name</p>
                 <p>第三方应用程序需要你授权，并获取你的信息</p>
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">

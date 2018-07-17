@@ -11,7 +11,7 @@ namespace OAuthTest
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new MvcAuthAttribute());
+            //filters.Add(new MvcAuthAttribute());
             filters.Add(new HandleErrorAttribute());
         }
     }

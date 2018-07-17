@@ -15,14 +15,14 @@ namespace OAuthTest
     {
         public void ConfigureAuth(IAppBuilder app)
         {       
-            /*启用cookie 可以配合id身份验证使用
+           
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {
                 CookieName = "OAuthTest.Cookie",
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                 LoginPath = new PathString("/Account/Login")
             });
-            */
+            
             OAuthAuthorizationServerOptions OAuthServerOptions = new OAuthAuthorizationServerOptions()
             {
                 AllowInsecureHttp = true,//允许客户端以http协议请求；

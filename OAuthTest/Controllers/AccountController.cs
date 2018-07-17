@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security;
 using OAuthTest.Filter;
 using OAuthTest.Models;
 using System;
@@ -7,18 +8,24 @@ using System.Linq;
 using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
+using Newtonsoft.Json;
 
 namespace OAuthTest.Controllers
 {
     public class AccountController : Controller
     {
+        private IAuthenticationManager AuthenticationManager
+        {
+            get { return HttpContext.GetOwinContext().Authentication; }
+        }
+
         // GET: Account
         [HttpGet]
         [AllowAnonymous]
         public ActionResult Login(string ReturnUrl)
         {
             ViewBag.ReturnUrl = ReturnUrl;
-            if (CurUser.UserInfo != null)
+            if (Request.IsAuthenticated)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -32,18 +39,15 @@ namespace OAuthTest.Controllers
             var model = Repository.users.FirstOrDefault(t => t.username == user.username && t.password == user.password);
             if (model != null)
             {
-                Session["UserInfo"] = model;
-                
-                /*
                 ///id验证
                 var identity = new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, model.id.ToString()),
-                    new Claim(ClaimTypes.Name, model.username),
+                    new Claim(ClaimTypes.Name, model.username)
                 }, DefaultAuthenticationTypes.ApplicationCookie);
-                var authentication = HttpContext.GetOwinContext().Authentication;
-                authentication.SignIn(identity);
-                */
+                
+                AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = true }, identity);
+
 
                 return RedirectToLocal(returnUrl);
             }
