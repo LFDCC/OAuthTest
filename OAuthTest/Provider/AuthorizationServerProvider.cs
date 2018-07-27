@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using OAuthTest.Models;
 using System.Security.Principal;
 
-namespace OAuthTest.OAuth2
+namespace OAuthTest.Provider
 {
     /// <summary>
     /// 授权业务类

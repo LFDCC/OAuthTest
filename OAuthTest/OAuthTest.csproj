@@ -257,10 +257,11 @@
     <Compile Include="Filter\ApiExceAttribute.cs" />
     <Compile Include="Filter\MvcAuthAttribute.cs" />
     <Compile Include="Models\CurUser.cs" />
-    <Compile Include="OAuth2\AccessTokenProvider.cs" />
-    <Compile Include="OAuth2\AuthorizationCodeProvider.cs" />
-    <Compile Include="OAuth2\RefreshTokenProvider.cs" />
-    <Compile Include="OAuth2\AuthorizationServerProvider.cs" />
+    <Compile Include="Provider\AccessTokenProvider.cs" />
+    <Compile Include="Provider\AuthorizationCodeProvider.cs" />
+    <Compile Include="Provider\QueryStringBearerProvider .cs" />
+    <Compile Include="Provider\RefreshTokenProvider.cs" />
+    <Compile Include="Provider\AuthorizationServerProvider.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

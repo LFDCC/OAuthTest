@@ -10,7 +10,7 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace OAuthTest.OAuth2
+namespace OAuthTest.Provider
 {
     /// <summary>
     /// 刷新Token的实现类

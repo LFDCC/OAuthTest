@@ -10,13 +10,17 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace OAuthTest.OAuth2
+namespace OAuthTest.Provider
 {
     /// <summary>
     /// 创建、验证Token的实现类
     /// </summary>
     public class AccessTokenProvider : AuthenticationTokenProvider
     {
+        public AccessTokenProvider(string name)
+        {
+            Console.WriteLine(name);
+        }
         public override void Create(AuthenticationTokenCreateContext context)
         {
             base.Create(context);

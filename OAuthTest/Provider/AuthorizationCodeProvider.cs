@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace OAuthTest.OAuth2
+namespace OAuthTest.Provider
 {
     public class AuthorizationCodeProvider : AuthenticationTokenProvider
     {

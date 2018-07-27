@@ -6,7 +6,7 @@ using System.Web.Http;
 
 namespace OAuthTest.Controllers
 {
-    [ApiAuth(Roles ="auth_base")]
+    [ApiAuth]
     public class ProductsController : ApiController
     {
         Product[] products = new Product[]

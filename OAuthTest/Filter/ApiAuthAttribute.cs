@@ -21,15 +21,8 @@ namespace OAuthTest.Filter
             bool flag = filterContext.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any() || filterContext.ActionDescriptor.ControllerDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any();
             if (!flag && filterContext.RequestContext.Principal.Identity.IsAuthenticated)
             {
-                //filterContext.RequestContext.Principal.IsInRole("auth_login")
                 var identity = filterContext.RequestContext.Principal.Identity as ClaimsIdentity;
-
-                var scopes = identity.Claims.Where(t => t.Type == "urn:oauth:scope").Select(t => t.Value).ToList();
-                if (scopes.Contains(Roles))
-                {
-
-                }
-                else
+                if (!string.IsNullOrWhiteSpace(Roles) && !filterContext.RequestContext.Principal.IsInRole(Roles))
                 {
                     var response = filterContext.Response = filterContext.Response ?? new HttpResponseMessage();
                     response.StatusCode = HttpStatusCode.Unauthorized;
@@ -40,8 +33,11 @@ namespace OAuthTest.Filter
                     };
                     response.Content = new StringContent(Json.Encode(content), Encoding.UTF8, "application/json");
                 }
+                else
+                {
+                    base.OnAuthorization(filterContext);//可以执行后续的 IsAuthorized HandleUnauthorizedRequest两个方法
+                }
             }
-            base.OnAuthorization(filterContext);//可以执行后续的 IsAuthorized HandleUnauthorizedRequest两个方法
         }
 
         protected override bool IsAuthorized(HttpActionContext filterContext)
