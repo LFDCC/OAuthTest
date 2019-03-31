@@ -29,7 +29,8 @@ namespace OAuthTest
                 AuthenticationMode = AuthenticationMode.Active,
                 TokenEndpointPath = new PathString("/oauth2/token"),//密码授权 客户端授权 需要的access_token post
                 AuthorizeEndpointPath = new PathString("/oauth2/authorize"), //获取 authorization_code 认证服务请求地址 get
-                AccessTokenExpireTimeSpan = TimeSpan.FromMinutes(60),//access_token 过期时间
+                //AccessTokenExpireTimeSpan = TimeSpan.FromSeconds(30),//access_token 过期时间
+                //AuthorizationCodeExpireTimeSpan=TimeSpan.FromSeconds(10),
 
                 Provider = new AuthorizationServerProvider(),//授权服务
                 AccessTokenProvider = new AccessTokenProvider("test0"),//自定义创建accesstoken 验证accesstoken规则

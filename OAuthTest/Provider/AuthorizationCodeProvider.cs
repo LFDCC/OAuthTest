@@ -1,11 +1,7 @@
-﻿using Microsoft.Owin.Security.Infrastructure;
-using Microsoft.Owin.Security.OAuth;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
+using Microsoft.Owin.Security.Infrastructure;
 
 namespace OAuthTest.Provider
 {
@@ -18,8 +14,9 @@ namespace OAuthTest.Provider
         /// </summary>
         public override Task CreateAsync(AuthenticationTokenCreateContext context)
         {
-            context.SetToken(Guid.NewGuid().ToString("n") + Guid.NewGuid().ToString("n"));
-            _authenticationCodes[context.Token] = context.SerializeTicket();
+            var code = Guid.NewGuid().ToString("n") + Guid.NewGuid().ToString("n");
+            context.SetToken(code);
+            _authenticationCodes[context.Token] = context.SerializeTicket();//把当前用户信息序列号作为access_token
             return Task.FromResult(0);
         }
 
@@ -34,7 +31,7 @@ namespace OAuthTest.Provider
             {
                 context.DeserializeTicket(value);
             }
-              return Task.FromResult(0);
+            return Task.FromResult(0);
         }
     }
 }

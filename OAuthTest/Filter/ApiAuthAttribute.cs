@@ -18,8 +18,7 @@ namespace OAuthTest.Filter
     {
         public override void OnAuthorization(HttpActionContext filterContext)
         {
-            bool flag = filterContext.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any() || filterContext.ActionDescriptor.ControllerDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any();
-            if (!flag && filterContext.RequestContext.Principal.Identity.IsAuthenticated)
+            if (filterContext.RequestContext.Principal.Identity.IsAuthenticated)
             {
                 var identity = filterContext.RequestContext.Principal.Identity as ClaimsIdentity;
                 if (!string.IsNullOrWhiteSpace(Roles) && !filterContext.RequestContext.Principal.IsInRole(Roles))
@@ -40,10 +39,10 @@ namespace OAuthTest.Filter
             }
         }
 
-        protected override bool IsAuthorized(HttpActionContext filterContext)
-        {
-            return base.IsAuthorized(filterContext);
-        }
+        //protected override bool IsAuthorized(HttpActionContext filterContext)
+        //{
+        //    return base.IsAuthorized(filterContext);
+        //}
 
         protected override void HandleUnauthorizedRequest(HttpActionContext filterContext)
         {
@@ -52,10 +51,9 @@ namespace OAuthTest.Filter
             var content = new
             {
                 success = false,
-                error = "服务器拒绝您的访问"
+                msg = "token验证失败"
             };
-            response.Content = new StringContent(Json.Encode(content), Encoding.UTF8, "application/json");
-
+            response.Content = new StringContent(Json.Encode(content), Encoding.UTF8, "application/json");            
         }
 
     }

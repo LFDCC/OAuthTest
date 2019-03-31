@@ -1,11 +1,11 @@
-﻿using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.OAuth;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using OAuthTest.Models;
 using System.Security.Principal;
+using System.Threading.Tasks;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.OAuth;
+using OAuthTest.Models;
 
 namespace OAuthTest.Provider
 {
@@ -77,7 +77,6 @@ namespace OAuthTest.Provider
             {
                 context.AdditionalResponseParameters.Add(property.Key, property.Value);
             }
-
             return Task.FromResult(0);
         }
 
